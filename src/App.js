@@ -67,7 +67,7 @@ function App() {
         setTokenTotalSupply(totalSupply);
         setTokenSymbol(tokenSymbol);
 
-        if (account.toLowerCase() == tokenOwner.toLowerCase()) {
+        if (account.toLowerCase() === tokenOwner.toLowerCase()) {
           console.log("is token owner");
           setIsTokenOwner(true);
         } else {
