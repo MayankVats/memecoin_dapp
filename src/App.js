@@ -21,6 +21,43 @@ function App() {
   const contractAddress = "0x6Dc375553522AF764FBA0483C7b1BB91050DE654";
   const contractABI = abi.abi;
 
+  async function checkValidNetwork() {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x61" }],
+      });
+    } catch (switchError) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x61",
+                chainName: "Smart Chain - Testnet",
+                nativeCurrency: {
+                  name: "BNB",
+                  symbol: "BNB", // 2-6 characters long
+                  decimals: 18,
+                },
+                rpcUrls: ["https://data-seed-prebsc-1-s1.binance.org:8545/"],
+                blockExplorerUrls: ["https://testnet.bscscan.com"],
+              },
+            ],
+          });
+        } catch (addError) {
+          // handle "add" error
+        }
+      }
+      // handle other "switch" errors
+      else {
+        alert("Network Switch Denied");
+      }
+    }
+  }
+
   const checkIfWalletIsConnected = async () => {
     try {
       if (window.ethereum) {
@@ -34,6 +71,14 @@ function App() {
         window.ethereum.on("accountsChanged", (accounts) => {
           setYourWalletAddress(accounts[0]);
           getTokenInfo();
+        });
+
+        window.ethereum.on("chainChanged", (chainId) => {
+          if (chainId != "0x61") {
+            alert("Please connect to BSC");
+          }
+
+          console.log(chainId);
         });
       } else {
         setError("Install a MetaMask wallet to get our token.");
@@ -182,6 +227,7 @@ function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    checkValidNetwork();
     getTokenInfo();
   }, []);
 
